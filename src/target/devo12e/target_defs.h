@@ -1,5 +1,5 @@
-#ifndef _DEVO12_TARGET_H_
-#define _DEVO12_TARGET_H_
+#ifndef _DEVO12E_TARGET_H_
+#define _DEVO12E_TARGET_H_
 
 #include "../common/devo/common_devo.h"
 
@@ -24,6 +24,9 @@
 #define HAS_MULTIMOD_SUPPORT 1
 #define HAS_VIDEO           0
 #define HAS_4IN1_FLASH      1
+#define HAS_EXTENDED_AUDIO  1 
+#define HAS_AUDIO_UART5     0
+#define HAS_MUSIC_CONFIG    1
 
 #ifdef BUILDTYPE_DEV
    #define DEBUG_WINDOW_SIZE 200
@@ -53,4 +56,4 @@
 #define VOLTAGE_NUMERATOR 324
 #define VOLTAGE_OFFSET    421
 
-#endif //_DEVO12_TARGET_H_
+#endif //_DEVO12E_TARGET_H_

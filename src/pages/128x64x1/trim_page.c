@@ -20,25 +20,22 @@
 
 enum {
     BUTTON_X      = 0,
-    BUTTON_WIDTH  = 30,
-    TEXTSEL_X     = 32,
-    TEXTSEL_WIDTH = 50,
-    LABEL_X       = 84,
-    LABEL_WIDTH   = 41,
-    STEP_X        = 46,
+    BUTTON_WIDTH  = 37,
+    TEXTSEL_X     = 38,
+    TEXTSEL_WIDTH = 52,
+    LABEL_X       = 90,
+    LABEL_WIDTH   = 34,
     STEP_Y        = 0,
-    STEP_WIDTH    = 30,
-    TRIMPOS_X     = 88,
-    TRIMPOS_WIDTH = 30,
+    TRIMPOS_X     = 90,
 //
-    LABEL2_X      = 0,
-    LABEL2_WIDTH  = 0,
     TEXTSEL2_X    = 60,
     TEXTSEL2_WIDTH= 63,
+    LABEL2_X      = 0,
+    LABEL2_WIDTH  = TEXTSEL2_X - LABEL2_X,
 //
-    BUTTON2_X     = LCD_WIDTH - 50 - 1,
+    BUTTON2_X     = TEXTSEL2_X + 3,
     BUTTON2_Y     = 0,
-    BUTTON2_WIDTH = 50,
+    BUTTON2_WIDTH = TEXTSEL2_WIDTH - 6,
 };
 #endif //OVERRIDE_PLACEMENT
 
@@ -59,22 +56,21 @@ static int row_cb(int absrow, int relrow, int y, void *data)
     (void)data;
     struct Trim *trim = MIXER_GetAllTrims();
     GUI_CreateButtonPlateText(&gui->src[relrow], BUTTON_X, y, BUTTON_WIDTH, LINE_HEIGHT,
-            &DEFAULT_FONT, trimsource_name_cb, 0x0000, edit_trim_cb, (void *)((long)absrow));
+            &BUTTON_FONT, trimsource_name_cb, edit_trim_cb, (void *)((long)absrow));
     GUI_CreateTextSelectPlate(&gui->item[relrow], TEXTSEL_X, y,
-            TEXTSEL_WIDTH, LINE_HEIGHT, &TINY_FONT,  NULL, set_trimstep_cb, (void *)(long)(absrow+0x000)); //0x000: Use Model.trims
+            TEXTSEL_WIDTH, LINE_HEIGHT, &TINY_FONT,  NULL, set_trimstep_cb, (void *)(long)(absrow + 0x000)); //0x000: Use Model.trims
     GUI_CreateLabelBox(&gui->name[relrow], LABEL_X, y, LABEL_WIDTH, LINE_HEIGHT,
-            &DEFAULT_FONT, NULL, NULL,  (void *)INPUT_ButtonName(trim[absrow].pos));
+            &TINY_FONT, NULL, NULL,  (void *)INPUT_ButtonName(trim[absrow].pos));
     return 2;
 }
 
 static void _show_page()
 {
     //PAGE_ShowHeader(_tr("Trim")); // no title for devo10
-    PAGE_ShowHeader(_tr("Input"));
-    GUI_CreateLabelBox(&gui->steplbl, STEP_X, STEP_Y, STEP_WIDTH, LINE_HEIGHT, &DEFAULT_FONT, NULL, NULL, _tr("Step"));
+    GUI_CreateLabelBox(&gui->inputlbl, 0, 0, TEXTSEL_X, HEADER_HEIGHT, &TITLE_FONT, NULL, NULL, _tr("Input"));
+    GUI_CreateLabelBox(&gui->steplbl, TEXTSEL_X, STEP_Y, TRIMPOS_X - TEXTSEL_X, LINE_HEIGHT, &TITLE_FONT, NULL, NULL, _tr("Step"));
     // no enought space in Devo10, so just display trim + in the 1st page
-    //GUI_CreateLabelBox(w + 40, 0, 0, ITEM_HEIGHT, &DEFAULT_FONT, NULL, NULL, _tr("Trim -"));
-    GUI_CreateLabelBox(&gui->trimposlbl, TRIMPOS_X, STEP_Y, TRIMPOS_WIDTH, LINE_HEIGHT, &DEFAULT_FONT, NULL, NULL, _tr("Trim +"));
+    GUI_CreateLabelBox(&gui->trimposlbl, TRIMPOS_X, STEP_Y, LCD_WIDTH - TRIMPOS_X, LINE_HEIGHT, &TITLE_FONT, NULL, NULL, _tr("Trim +"));
     GUI_CreateScrollable(&gui->scrollable, 0, HEADER_HEIGHT, LCD_WIDTH, LCD_HEIGHT - HEADER_HEIGHT,
                          LINE_SPACE, NUM_TRIMS, row_cb, getobj_cb, NULL, NULL);
     PAGE_SetScrollable(&gui->scrollable, &current_selected);
@@ -125,20 +121,20 @@ static int row2_cb(int absrow, int relrow, int y, void *data)
             break;
     }
     GUI_CreateLabelBox(&guit->label[relrow], LABEL2_X, y, LABEL2_WIDTH, LINE_HEIGHT,
-            &DEFAULT_FONT, NULL, NULL,  _tr(label));
+            &LABEL_FONT, NULL, NULL, _tr(label));
     GUI_CreateTextSourcePlate(&guit->value[relrow], TEXTSEL2_X, y,
-            TEXTSEL2_WIDTH, LINE_HEIGHT, &DEFAULT_FONT,  NULL, value, input_value, data);
+            TEXTSEL2_WIDTH, LINE_HEIGHT, &TEXTSEL_FONT,  NULL, value, input_value, data);
     return 1;
 } 
+
 void PAGE_TrimEditInit(int page)
 {
     struct Trim *trim = MIXER_GetAllTrims();
     tp->index = page;
     tp->trim = trim[tp->index];
-    PAGE_ShowHeader(_tr("Edit")); // to draw a line only
-
+    GUI_CreateLabelBox(&guit->header, 0, 0, LABEL2_WIDTH, HEADER_HEIGHT, &TITLE_FONT, NULL, NULL, _tr("Edit"));
     GUI_CreateButtonPlateText(&guit->save, BUTTON2_X, BUTTON2_Y, BUTTON2_WIDTH, LINE_HEIGHT,
-            &DEFAULT_FONT, NULL, 0x0000, okcancel_cb, (void *)_tr("Save"));
+            &BUTTON_FONT, NULL, okcancel_cb, (void *)_tr("Save"));
     GUI_CreateScrollable(&gui->scrollable, 0, HEADER_HEIGHT, LCD_WIDTH, LCD_HEIGHT - HEADER_HEIGHT,
                          LINE_SPACE, ITEM_LAST, row2_cb, getobj2_cb, NULL, NULL);
     GUI_SetSelected(GUI_ShowScrollableRowOffset(&gui->scrollable, 0));

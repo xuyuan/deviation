@@ -1,5 +1,5 @@
-#ifndef _DEVOF4_TARGET_H_
-#define _DEVOF4_TARGET_H_
+#ifndef _DEVO_F4_TARGET_H_
+#define _DEVO_F4_TARGET_H_
 
 #define SPIFLASH_SECTOR_OFFSET 0
 #if defined HAS_4IN1_FLASH && HAS_4IN1_FLASH
@@ -52,6 +52,9 @@
 #define HAS_MAPPED_GFX      0
 #define HAS_CHAR_ICONS      1
 #define HAS_VIDEO           8
+#define HAS_EXTENDED_AUDIO  0
+#define HAS_AUDIO_UART5     0
+#define HAS_MUSIC_CONFIG    0
 
 #define NO_LANGUAGE_SUPPORT 1
 
@@ -78,4 +81,4 @@
 #define VOLTAGE_NUMERATOR 324
 #define VOLTAGE_OFFSET    382
 
-#endif //_DEVO7E_TARGET_H_
+#endif //_DEVO_F4_TARGET_H_

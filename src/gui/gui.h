@@ -43,16 +43,16 @@ enum KeyboardType {
 
 enum LabelType {
     LABEL_NO_BOX,
-    LABEL_CENTER,
+    LABEL_CENTER,        // Left for compatibility only
     LABEL_FILL,
     LABEL_TRANSPARENT,
-    LABEL_LEFT,
-    LABEL_RIGHT,
+    LABEL_LEFT,          // Left for compatibility only
+    LABEL_RIGHT,         // Left for compatibility only
     LABEL_BOX,
+    LABEL_UNDERLINE,
 #if LCD_DEPTH == 1
     LABEL_SQUAREBOX,
     LABEL_BRACKET,
-    LABEL_UNDERLINE,
     LABEL_INVERTED,
 #else
     LABEL_LISTBOX,
@@ -60,9 +60,16 @@ enum LabelType {
 
 };
 
+enum LabelAlign {
+    ALIGN_CENTER = 0x01,
+    ALIGN_LEFT   = 0x02,
+    ALIGN_RIGHT  = 0x04,
+};
+
 struct LabelDesc {
     u8 font;
     enum LabelType style;
+    enum LabelAlign align;
     u16 font_color;
     u16 fill_color;
     u16 outline_color;
@@ -70,8 +77,8 @@ struct LabelDesc {
 
 struct ImageMap {
     const char *file;
-    u8 width;
-    u8 height;
+    u16 width;
+    u16 height;
     u16 x_off;
     u16 y_off;
 };
@@ -165,7 +172,6 @@ typedef struct guiButton {
     const char *(*strCallback)(struct guiObject *obj, const void *data);
     void (*CallBack)(struct guiObject *obj, const void *data);
     const void *cb_data;
-    u16 fontColor;
     u8 flags;
 } guiButton_t;
 
@@ -225,7 +231,6 @@ typedef struct guiTextSelect {
     const struct ImageMap *button;
     u8 state;
     enum TextSelectType type;
-    u16 fontColor;
     const char *(*ValueCB)(guiObject_t *obj, int dir, void *data);
     void (*SelectCB)(guiObject_t *obj, void *data);
     const char *(*InputValueCB)(guiObject_t *obj, int src, int value, void *data);
@@ -336,10 +341,10 @@ guiObject_t *GUI_CreateImageOffset(guiImage_t *, u16 x, u16 y, u16 width, u16 he
 
 guiObject_t *GUI_CreateButton(guiButton_t *, u16 x, u16 y, enum ButtonType type,
         const char *(*strCallback)(guiObject_t *, const void *),
-        u16 fontColor, void (*CallBack)(guiObject_t *obj, const void *data), const void *cb_data);
+        void (*CallBack)(guiObject_t *obj, const void *data), const void *cb_data);
 guiObject_t *GUI_CreateButtonPlateText(guiButton_t *, u16 x, u16 y, u16 width, u16 height, const struct LabelDesc *desc,
         const char *(*strCallback)(guiObject_t *, const void *),
-        u16 fontColor, void (*CallBack)(guiObject_t *obj, const void *data), const void *cb_data);
+        void (*CallBack)(guiObject_t *obj, const void *data), const void *cb_data);
 guiObject_t *GUI_CreateIcon(guiButton_t *, u16 x, u16 y, const struct ImageMap *image,
         void (*CallBack)(guiObject_t *obj, const void *data), const void *cb_data);
 int GUI_TouchButton(struct guiObject *obj, int press_type);

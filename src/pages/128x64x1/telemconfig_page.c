@@ -24,10 +24,10 @@ enum {
     LABEL_X    = 0,
     LABEL_W    = 9,
     TEXTSEL1_X = 9,
-    TEXTSEL1_W = 46,
-    TEXTSEL2_X = 58,
+    TEXTSEL1_W = 51,
+    TEXTSEL2_X = 61,
     TEXTSEL2_W = 21,
-    TEXTSEL3_X = 82,
+    TEXTSEL3_X = 83,
     TEXTSEL3_W = 40,
     MSG_X      = 20,
     MSG_Y      = 10,
@@ -59,11 +59,11 @@ static int row_cb(int absrow, int relrow, int y, void *data)
     GUI_CreateLabelBox(&gui->idx[relrow], LABEL_X, y,
             LABEL_W, LINE_HEIGHT, &TINY_FONT, idx_cb, NULL, (void *)(long)absrow);
     GUI_CreateTextSelectPlate(&gui->name[relrow], TEXTSEL1_X, y,
-            TEXTSEL1_W, LINE_HEIGHT, &DEFAULT_FONT, NULL, telem_name_cb, (void *)(long)absrow);
+            TEXTSEL1_W, LINE_HEIGHT, &TEXTSEL_FONT, NULL, telem_name_cb, (void *)(long)absrow);
     GUI_CreateTextSelectPlate(&gui->gtlt[relrow], TEXTSEL2_X, y,
             TEXTSEL2_W, LINE_HEIGHT, &TINY_FONT, sound_test_cb, gtlt_cb, (void *)(long)absrow);
     GUI_CreateTextSelectPlate(&gui->value[relrow], TEXTSEL3_X, y,
-            TEXTSEL3_W, LINE_HEIGHT, &DEFAULT_FONT, NULL, limit_cb, (void *)(long)absrow);
+            TEXTSEL3_W, LINE_HEIGHT, &TEXTSEL_FONT, NULL, limit_cb, (void *)(long)absrow);
     return 3;
 }
 

@@ -20,13 +20,14 @@
 #include "config/tx.h"
 #include "config/model.h"
 #include "autodimmer.h"
+#include "extended_audio.h"
 
 enum {
   LARGE_SEL_X_OFFSET = 68,
-  MED_SEL_X_OFFSET   = 68 + 10,
+  MED_SEL_X_OFFSET   = 68 + 8,
   SMALL_SEL_X_OFFSET = 68 + 15,
   TITLE_X_OFFSET     = 0,
-  TITLE_WIDTH        = 0,
+  TITLE_WIDTH        = LCD_WIDTH - ARROW_WIDTH - 1,
   LABEL_X_OFFSET     = 0,
   LABEL_WIDTH        = 0,
   CALIB_Y            = 0,
@@ -42,6 +43,10 @@ static struct tx_obj * const gui = &gui_objs.u.tx;
 static const char *_contrast_select_cb(guiObject_t *obj, int dir, void *data);
 static const char *_vibration_state_cb(guiObject_t *obj, int dir, void *data);
 static const char *_buzz_vol_cb(guiObject_t *obj, int dir, void *data);
+#if HAS_EXTENDED_AUDIO
+static const char *_audio_vol_cb(guiObject_t *obj, int dir, void *data);
+#endif
+
 static u16 current_selected = 0;  // do not put current_selected into pagemem as it shares the same structure with other pages by using union
 
 static int size_cb(int absrow, void *data)
@@ -99,38 +104,48 @@ static int row_cb(int absrow, int relrow, int y, void *data)
             but_str = calibratestr_cb; tgl = press_cb; data = (void *)CALIB_STICK;
             break;
         case ITEM_BUZZ:
+#if HAS_EXTENDED_AUDIO
+            title = _tr_noop("Audio settings");
+#else
             title = _tr_noop("Buzz settings");
+#endif
             label = _tr_noop("Buzz volume");
-            value = _buzz_vol_cb; data = &Transmitter.volume;
+            value = _buzz_vol_cb; data = &Transmitter.volume; x = MED_SEL_X_OFFSET;
             break;
+#if HAS_EXTENDED_AUDIO
+        case ITEM_AUDIO:
+            label = _tr_noop("Audio volume");
+            value = _audio_vol_cb; data = &Transmitter.audio_vol; x = MED_SEL_X_OFFSET;
+            break;
+#endif
         case ITEM_HAPTIC:
             label = _tr_noop("Vibration");
-            value = _vibration_state_cb; data = &Transmitter.vibration_state;
+            value = _vibration_state_cb; data = &Transmitter.vibration_state; x = MED_SEL_X_OFFSET;
             break;
         case ITEM_BATT:
             label = _tr_noop("Batt alarm");
-            value = batalarm_select_cb;
+            value = batalarm_select_cb; x = MED_SEL_X_OFFSET;
             break;
         case ITEM_ALARM_INTV:
             label = _tr_noop("Alarm intvl");
-            value = batalarmwarn_select_cb;
+            value = batalarmwarn_select_cb; x = MED_SEL_X_OFFSET;
             break;
         case ITEM_PWR_ALARM:
             label = _tr_noop("PwrOn alarm");
-            value = poweralarm_select_cb;
+            value = poweralarm_select_cb; x = MED_SEL_X_OFFSET;
             break;
         case ITEM_PWRDN_ALARM:
             label = _tr_noop("PwrDn alert");
-            value = _music_shutdown_cb;
+            value = _music_shutdown_cb; x = MED_SEL_X_OFFSET;
             break;
         case ITEM_BACKLIGHT:
             title = _tr_noop("LCD settings");
             label = _tr_noop("Backlight");
-            value = backlight_select_cb;
+            value = backlight_select_cb; x = SMALL_SEL_X_OFFSET;
             break;
         case ITEM_CONTRAST:
             label = _tr_noop("Contrast");
-            value = _contrast_select_cb;
+            value = _contrast_select_cb; x = SMALL_SEL_X_OFFSET;
             break;
         case ITEM_DIMTIME:
             label = _tr_noop("Dimmer time");
@@ -138,12 +153,12 @@ static int row_cb(int absrow, int relrow, int y, void *data)
             break;
         case ITEM_DIMVAL:
             label = _tr_noop("Dimmer target");
-            value = common_select_cb; data = &Transmitter.auto_dimmer.backlight_dim_value; x = MED_SEL_X_OFFSET;
+            value = common_select_cb; data = &Transmitter.auto_dimmer.backlight_dim_value; x = SMALL_SEL_X_OFFSET;
             break;
         case ITEM_PREALERT:
             title = _tr_noop("Timer settings");
             label = _tr_noop("Prealert time");
-            value = prealert_time_cb; data = (void *)0L; x = MED_SEL_X_OFFSET;
+            value = prealert_time_cb; data = (void *)0L; x = SMALL_SEL_X_OFFSET;
             break;
         case ITEM_PREALERT_IVAL:
             label = _tr_noop("Prealert intvl");
@@ -156,29 +171,30 @@ static int row_cb(int absrow, int relrow, int y, void *data)
         case ITEM_TELEMTEMP:
             title = _tr_noop("Telemetry settings");
             label = _tr_noop("Temperature");
-            value = units_cb; data = (void *)1L;
+            value = units_cb; data = (void *)1L; x = MED_SEL_X_OFFSET;
             break;
         case ITEM_TELEMLEN:
             label = _tr_noop("Length");
-            value = units_cb; data = (void *)0L;
+            value = units_cb; data = (void *)0L; x = MED_SEL_X_OFFSET;
+            break;
+        case ITEM_TELEM_IVAL:
+            label = _tr_noop("Alert intvl");
+            value = telem_interval_cb; data = &Transmitter.telem_alert_interval; x = MED_SEL_X_OFFSET;
             break;
     }
     if (title) {
-        enum LabelType oldType = labelDesc.style;
-        labelDesc.style = LABEL_UNDERLINE;
         GUI_CreateLabelBox(&gui->title[relrow], TITLE_X_OFFSET, y,
-                TITLE_WIDTH, LINE_HEIGHT, &labelDesc, NULL, NULL, _tr(title));
-        labelDesc.style = oldType;
+                TITLE_WIDTH, LINE_HEIGHT, &SECTION_FONT, NULL, NULL, _tr(title));
         y += LINE_SPACE;
     }
     GUI_CreateLabelBox(&gui->label[relrow], LABEL_X_OFFSET, y,
-            LABEL_WIDTH, LINE_HEIGHT,  &DEFAULT_FONT, NULL, NULL, _tr(label));
+            LABEL_WIDTH, LINE_HEIGHT, &LABEL_FONT, NULL, NULL, _tr(label));
     if(but_str) {
         GUI_CreateButtonPlateText(&gui->value[relrow].but, x, y,
-            TEXTSEL_X_WIDTH, LINE_HEIGHT, &DEFAULT_FONT, but_str, 0x0000, tgl, data);
+            TEXTSEL_X_WIDTH, LINE_HEIGHT, &BUTTON_FONT, but_str, tgl, data);
     } else {
         GUI_CreateTextSelectPlate(&gui->value[relrow].ts, x, y,
-            TEXTSEL_X_WIDTH, LINE_HEIGHT, &DEFAULT_FONT, NULL, value, data);
+            TEXTSEL_X_WIDTH, LINE_HEIGHT, &TEXTSEL_FONT, NULL, value, data);
     }
     return 1;
 }

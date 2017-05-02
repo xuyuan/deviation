@@ -57,6 +57,10 @@ void SOUND_Init()
 
 void SOUND_SetFrequency(unsigned frequency, unsigned volume)
 {
+    if(frequency == 0) {
+        volume = 0;
+        frequency = 220;
+    }
     if (volume == 0) {
         //We need to keep the timer running (for the vibration motor, but also in case there is a pause in the music)
         //But don't want the buzzer running
@@ -76,10 +80,11 @@ void SOUND_SetFrequency(unsigned frequency, unsigned volume)
     timer_set_oc_value(_SOUND_TIM, _SOUND_TIM_OC, duty_cycle);
 }
 
-void SOUND_Start(unsigned msec, u16(*next_note_cb)())
+void SOUND_Start(unsigned msec, u16(*next_note_cb)(), u8 vibrate)
 {
     SOUND_StartWithoutVibrating(msec, next_note_cb);
-    VIBRATINGMOTOR_Start();
+    if (vibrate)
+        VIBRATINGMOTOR_Start();
 }
 
 void SOUND_StartWithoutVibrating(unsigned msec, u16(*next_note_cb)())
