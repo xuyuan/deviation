@@ -12,7 +12,7 @@ PRE_FS = $(ODIR)/.pre_fs
 INCLUDE_FS := 0
 
 include target/common/devo/Makefile.inc
-include target/common/devo/Makefile.devofs.inc
+#include target/common/devo/Makefile.devofs.inc
 
 ifndef BUILD_TARGET
 
