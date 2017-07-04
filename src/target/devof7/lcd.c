@@ -296,7 +296,7 @@ void LCD_Init()
     while(i) i--;
 
     LCD_Cmd(LCD_IA911_DISPLAY | LCD_IA911_DO | LCD_IA911_LC | LCD_IA911_BL1); // Display on, LC ossillator on, Blink at 1Hz
-    LCD_Cmd(LCD_IA911_COLOR | LCD_IA911_B); // Background color blue
+    LCD_Cmd(LCD_IA911_COLOR | LCD_IA911_G); // Background color blue
     LCD_Cmd(LCD_IA911_BACKGROUND | LCD_IA911_BS0); // Background black framing
     LCD_Cmd(LCD_IA911_VIDEO_SEL | LCD_IA911_P0); // Set video to PAL
     LCD_Cmd(LCD_IA911_OSSIL_SEL | LCD_IA911_XFC); // Set ossilator XOSCI pin connected
