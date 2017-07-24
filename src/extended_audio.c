@@ -121,7 +121,7 @@ int AUDIO_Play(u16 music) {
     case AUDIO_LAST: // Sigh. Shut up the warnings
     case AUDIO_NONE: return 0;	// Play beeps...
     case AUDIO_AUDIOFX: {
-      char buffer[5];
+      char buffer[10];
       snprintf(buffer, sizeof(buffer), "#%d\n", voice_map[music].id);
       AUDIO_Print(buffer);
       break;
